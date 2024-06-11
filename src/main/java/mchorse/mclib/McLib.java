@@ -2,21 +2,17 @@ package mchorse.mclib;
 
 import mchorse.mclib.client.gui.utils.ValueColors;
 import mchorse.mclib.client.gui.utils.keys.IKey;
-import mchorse.mclib.commands.CommandMcLib;
 import mchorse.mclib.commands.CommandCheats;
+import mchorse.mclib.commands.CommandMcLib;
 import mchorse.mclib.commands.utils.L10n;
-import mchorse.mclib.events.RegisterPermissionsEvent;
-import mchorse.mclib.permissions.McLibPermissions;
 import mchorse.mclib.config.ConfigBuilder;
 import mchorse.mclib.config.values.ValueBoolean;
 import mchorse.mclib.config.values.ValueInt;
 import mchorse.mclib.config.values.ValueRL;
 import mchorse.mclib.events.RegisterConfigEvent;
-import mchorse.mclib.math.IValue;
-import mchorse.mclib.math.MathBuilder;
-import mchorse.mclib.math.Operation;
-import mchorse.mclib.math.Operator;
-import mchorse.mclib.math.Variable;
+import mchorse.mclib.events.RegisterPermissionsEvent;
+import mchorse.mclib.math.*;
+import mchorse.mclib.permissions.McLibPermissions;
 import mchorse.mclib.permissions.PermissionCategory;
 import mchorse.mclib.permissions.PermissionFactory;
 import mchorse.mclib.utils.ColorUtils;
@@ -46,7 +42,7 @@ import java.util.Map;
 public class McLib
 {
     public static final String MOD_ID = "mclib";
-    public static final String VERSION = "%VERSION%";
+    public static final String VERSION = "2.4.3";
 
     /* Proxies */
     public static final String CLIENT_PROXY = "mchorse.mclib.ClientProxy";

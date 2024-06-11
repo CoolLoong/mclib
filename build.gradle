@@ -44,6 +44,7 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load', coremodPath
         }
 
         server {
@@ -74,7 +75,7 @@ jar.finalizedBy('reobfJar')
 
 sourceSets { main { output.resourcesDir = output.classesDir } }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
 }
 
@@ -96,7 +97,7 @@ processResources {
 }
 
 /* Dev build */
-task deobfJar(type: Jar) {
+tasks.register('deobfJar', Jar) {
     from sourceSets.main.output
     classifier = 'dev'
 
@@ -105,7 +106,7 @@ task deobfJar(type: Jar) {
     }
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     from sourceSets.main.allJava
     classifier = 'sources'
 }
@@ -116,7 +117,7 @@ artifacts {
 }
 
 /* Comparing keys */
-task compareLangFiles {
+tasks.register('compareLangFiles') {
     doLast {
         def help = file("src/main/resources/assets/${project.archivesBaseName}/lang/")
         def parse = { File file ->
@@ -192,7 +193,7 @@ task compareLangFiles {
     }
 }
 
-task copyLangStrings {
+tasks.register('copyLangStrings') {
     doLast {
         def parse = { File file ->
             def map = new HashMap()
