@@ -1,69 +1,95 @@
-buildscript 
-{
-    repositories 
-    {
-        jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-    }
-    
-    dependencies 
-    {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+buildscript {
+    repositories
+            {
+                maven { url = 'https://maven.minecraftforge.net/' }
+                maven { url 'https://maven.aliyun.com/repository/public/' }
+                maven { url 'https://maven.aliyun.com/repository/google/' }
+                maven { url 'https://maven.aliyun.com/repository/jcenter/' }
+                maven {
+                    url = 'https://repo.spongepowered.org/repository/maven-public/'
+                }
+                mavenCentral()
+            }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
 
-if (project.hasProperty("dev")) 
-{
+if (project.hasProperty("dev")) {
     version += "-dev" + dev
 }
 
 group = "mchorse.mclib"
 archivesBaseName = "mclib"
 sourceCompatibility = targetCompatibility = "1.8"
-
-compileJava 
-{
+def mcversion = "1.12.2"
+compileJava {
     sourceCompatibility = targetCompatibility = "1.8"
 }
 
 /* Minecraft configuration */
 
-minecraft 
-{
-    version = "${mc_version}-${forge_version}"
-    runDir = "run"
-    mappings = snapshot
-    
-    clientJvmArgs = ["-Xmx1G", "-Dfml.coreMods.load=" + coremodPath]
-    serverJvmArgs = ["-Xmx1G"]
-    
-    replace "%VERSION%", project.version
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    implementation 'org.jetbrains:annotations:24.1.0'
 }
 
 jar {
-   manifest {
-       attributes 'FMLCorePlugin': coremodPath, 'FMLCorePluginContainsFMLMod': 'true'
-   }
+    manifest {
+        attributes 'FMLCorePlugin': coremodPath, 'FMLCorePluginContainsFMLMod': 'true'
+    }
 }
 
-processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+jar.finalizedBy('reobfJar')
 
-	project.version += "-" + project.minecraft.version
+sourceSets { main { output.resourcesDir = output.classesDir } }
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", mcversion
+
+    project.version += "-" + mcversion
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+
+        expand 'version': project.version, 'mcversion': mcversion
     }
-        
+
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
@@ -73,7 +99,7 @@ processResources
 task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'dev'
-    
+
     manifest {
         attributes 'FMLCorePlugin': coremodPath, 'FMLCorePluginContainsFMLMod': 'true'
     }
@@ -159,8 +185,7 @@ task compareLangFiles {
                         print("- ${key}\n")
                     }
                 }
-            }
-            else {
+            } else {
                 print("Language file ${lang_file.getName()} fully matches ${en.getName()}!\n")
             }
         }
@@ -185,14 +210,12 @@ task copyLangStrings {
 
             return map
         }
-        
+
         def help = file("src/main/resources/assets/${project.archivesBaseName}/lang/")
         def en = file("${help.getAbsolutePath()}/en_US.lang")
 
-        for (file in help.listFiles())
-        {
-            if (file.name.endsWith(".lang") && !file.name.startsWith("en_"))
-            {
+        for (file in help.listFiles()) {
+            if (file.name.endsWith(".lang") && !file.name.startsWith("en_")) {
                 def strings = parse(file)
                 def splits = en.text.split("\n")
 
